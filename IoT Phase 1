@@ -1,0 +1,59 @@
+
+
+import RPi.GPIO as GPIO
+import time
+
+# Define GPIO pins for ultrasonic sensors
+SENSOR_PIN_1 = 17
+SENSOR_PIN_2 = 18
+
+# Initialize GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SENSOR_PIN_1, GPIO.IN)
+GPIO.setup(SENSOR_PIN_2, GPIO.IN)
+
+def check_parking_spaces():
+    try:
+        while True:
+            # Read distance from ultrasonic sensor 1
+            GPIO.output(SENSOR_PIN_1, GPIO.LOW)
+            time.sleep(0.2)
+            GPIO.output(SENSOR_PIN_1, GPIO.HIGH)
+            start_time = time.time()
+            while GPIO.input(SENSOR_PIN_1) == GPIO.LOW:
+                pass
+            while GPIO.input(SENSOR_PIN_1) == GPIO.HIGH:
+                pass
+            elapsed_time = time.time() - start_time
+            distance1 = (elapsed_time * 34300) / 2  # Speed of sound is 343 m/s
+
+            # Read distance from ultrasonic sensor 2
+            GPIO.output(SENSOR_PIN_2, GPIO.LOW)
+            time.sleep(0.2)
+            GPIO.output(SENSOR_PIN_2, GPIO.HIGH)
+            start_time = time.time()
+            while GPIO.input(SENSOR_PIN_2) == GPIO.LOW:
+                pass
+            while GPIO.input(SENSOR_PIN_2) == GPIO.HIGH:
+                pass
+            elapsed_time = time.time() - start_time
+            distance2 = (elapsed_time * 34300) / 2
+
+            # Check if parking spaces are available
+            if distance1 > 30:  # Adjust this threshold based on your setup
+                print("Parking Space 1 is available")
+            else:
+                print("Parking Space 1 is occupied")
+
+            if distance2 > 30:  # Adjust this threshold based on your setup
+                print("Parking Space 2 is available")
+            else:
+                print("Parking Space 2 is occupied")
+
+            time.sleep(2)  # Check parking spaces every 2 seconds
+
+    except KeyboardInterrupt:
+        GPIO.cleanup()
+
+if __name__ == "__main__":
+    check_parking_spaces()
